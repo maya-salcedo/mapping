@@ -19,17 +19,28 @@ def color_produce(elevation):
     else:
         return 'blue'
 
-map = folium.Map(location=[34.3693101,-117.9428368],tiles='Stamen Terrain')
+map = folium.Map(location=[44.8921239,-104.6792032],tiles='Stamen Terrain')
 
-fg = folium.FeatureGroup(name="My Map")
+fgv = folium.FeatureGroup(name="Volcanoes") #featuredGroup for volcanoes
 
 #to add multiple Markers, use a for loop
 for lt, ln, el in zip(lat, lon, elev):
-    fg.add_child(folium.CircleMarker(location=[lt, ln], radius=5, popup=str(el)+ " m", fill_color=color_produce(el), color='grey', fill_opacity=0.7))
+    fgv.add_child(folium.CircleMarker(location=[lt, ln], radius=5, popup=str(el)+ " m", fill_color=color_produce(el), color='grey', fill_opacity=0.7))
+#lambda is used because the function does not need to be called again
+#x is the features
+fgp = folium.FeatureGroup(name="Population")
+
+fgp.add_child(folium.GeoJson(data=(open('world.json', 'r', encoding='utf-8-sig').read()),
+                            style_function=lambda x:{'fillColor':'green' if x['properties']['POP2005'] < 10000000
+                                                     else 'orange' if 10000000 <= x['properties']['POP2005'] < 20000000
+                                                     else 'red'}))
+#x['properties']['POP2005'] --> calling the dictionary that carries the information on the population
 
 
 
-map.add_child(fg)
-
+map.add_child(fgv)
+map.add_child(fgp)
+map.add_child(folium.LayerControl())
 map.save("Map1.html")
 
+#this map contains a base layer, marker ayer and polygon layer
